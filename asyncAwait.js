@@ -32,50 +32,50 @@
 // ------- Async with Promises
 
 
-function withConstructor(num){
+function withConstructor(num) {
     return new Promise((resolve, reject) => {
-      if (num === 0){
-        resolve('zero');
-      } else {
-        resolve('not zero');
-      }
+        if (num === 0) {
+            resolve('zero');
+        } else {
+            resolve('not zero');
+        }
     })
-  }
-  
-  withConstructor(0)
-    .then((resolveValue) => {
-    console.log(` withConstructor(0) returned a promise which resolved to: ${resolveValue}.`);
-  })
-  
+}
 
-// WITH ASYNC, NO NEW PROMISE KEYWORD LIKE ABOVE
-  // Write your code below:
-  async function withAsync(num){
-    if (num === 0){
+withConstructor(0)
+    .then((resolveValue) => {
+        console.log(` withConstructor(0) returned a promise which resolved to: ${resolveValue}.`);
+    })
+
+
+//--------- WITH ASYNC, NO NEW PROMISE KEYWORD LIKE ABOVE
+// Write your code below:
+async function withAsync(num) {
+    if (num === 0) {
         return 'zero';
-      } else {
+    } else {
         return 'not zero';
-      }
-  }
-  
-  withAsync(100)
+    }
+}
+
+withAsync(100)
     .then((resolveValue) => {
-    console.log(` withAsync(100) returned a promise which resolved to: ${resolveValue}.`);
-  })
+        console.log(` withAsync(100) returned a promise which resolved to: ${resolveValue}.`);
+    })
 
 
-//-------------- OR
+// OR
 
 
 function nativePromiseDinner() {
     brainstormDinner().then((meal) => {
         console.log(`I'm going to make ${meal} for dinner.`);
     })
-  }
-  
-  
-  // async/await version:
-  async function announceDinner() {
+}
+
+
+// async/await version:
+async function announceDinner() {
     // Write your code below:
     await brainstormDinner()
     // runs this first, before finishing the function 
@@ -83,8 +83,8 @@ function nativePromiseDinner() {
     brainstormDinner().then((meal) => {
         console.log(`I'm going to make ${meal} for dinner.`);
     })
-  }
-  
+}
+
 
 
 
@@ -98,25 +98,147 @@ function nativePromiseDinner() {
 
 
 
-// Await vs No-Await
+//--------- Await vs No-Await
 
 let myPromise = () => {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve('Yay, I resolved!')
-      }, 1000);
+        setTimeout(() => {
+            resolve('Yay, I resolved!')
+        }, 1000);
     });
-  }
+}
 
-  async function noAwait() {
+async function noAwait() {
     let value = myPromise();
     console.log(value);
-   }
-   
-   async function yesAwait() {
+}
+
+async function yesAwait() {
     let value = await myPromise();
     console.log(value);
-   }
-   
-   noAwait(); // Prints: Promise { <pending> }
-   yesAwait(); // Prints: Yay, I resolved!
+}
+
+noAwait(); // Prints: Promise { <pending> }
+yesAwait(); // Prints: Yay, I resolved!
+
+
+// Chaining Awaits in Async versus Promises with then.
+
+const { shopForBeans, soakTheBeans, cookTheBeans } = require('./library.js');
+
+// Write your code below:
+
+const makeBeans = async () => {
+    const type = await shopForBeans()
+    // Dependent on shopForBeans to finish
+    const isSoft = await soakTheBeans(type)
+    // Dependent on soakTheBeans function finishing first
+    const dinner = await cookTheBeans(isSoft)
+    // Dependent on cookTheBeans
+    console.log(dinner)
+    // If all completed it will console log
+
+}
+makeBeans()
+// Invoked
+
+
+//------------ Handling Errors
+
+
+//This function returns true 50% of the time.
+let randomSuccess = () => {
+    let num = Math.random();
+    if (num < .5) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+//This function returns a promise that resolves half of the time and rejects half of the time
+let cookBeanSouffle = () => {
+    return new Promise((resolve, reject) => {
+        console.log('Fingers crossed... Putting the Bean Souffle in the oven');
+        setTimeout(() => {
+            let success = randomSuccess();
+            if (success) {
+                resolve('Bean Souffle');
+            } else {
+                reject('Dinner is ruined!');
+            }
+        }, 1000);
+    })
+};
+
+module.exports = cookBeanSouffle;
+
+const cookBeanSouffle = require('./library.js');
+
+// Write your code below:
+
+async function hostDinnerParty() {
+    try {
+        let value = await cookBeanSouffle()
+        console.log(`${value} is served!`)
+    }
+
+    catch (error) {
+        console.log(error)
+        console.log('Ordering a pizza!')
+    }
+}
+hostDinnerParty()
+
+
+
+//  ---------- Handling Independent Promises
+
+
+let { cookBeans, steamBroccoli, cookRice, bakeChicken } = require('./library.js')
+
+// Write your code below:
+
+async function serveDinner() {
+    let vegetablePromise = steamBroccoli();
+    let starchPromise = cookRice();
+    let proteinPromise = bakeChicken();
+    let sidePromise = cookBeans();
+    console.log(
+            `Dinner is served. We're having 
+        ${await vegetablePromise}, 
+        ${await starchPromise}, 
+        ${await proteinPromise}
+        , and 
+        ${await sidePromise}.`
+        // Better to declare await with the variable to be concurrent or use promise.all() below
+    )
+}
+
+serveDinner()
+
+// OR USE PROMISE.ALL()
+// All instances are required but not dependent on each other
+
+
+let { cookBeans, steamBroccoli, cookRice, bakeChicken } = require('./library.js')
+
+// Write your code below:
+async function serveDinnerAgain() {
+    let foodArray = await Promise.all([steamBroccoli(), cookRice(), bakeChicken(), cookBeans()]);
+
+    console.log(
+        `Dinner is served. We're having 
+        ${foodArray[0]}, 
+        ${foodArray[1]}, 
+        ${foodArray[2]}, 
+        and 
+        ${foodArray[3]}.`
+    )
+}
+
+serveDinnerAgain()
+
+
+
+
